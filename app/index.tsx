@@ -1,18 +1,7 @@
-import { useRouter } from "expo-router";
-import { ActivityIndicator, StyleSheet } from "react-native";
-
-import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
-
 import { useAuth } from "@clerk/clerk-expo";
+import { useRouter } from "expo-router";
 import { useEffect } from "react";
-
-// Colores principales de la app
-const COLORS = {
-  primary: "#7C3AED",
-  white: "#FFFFFF",
-  background: "#F5F3FF",
-};
+import { ActivityIndicator, Text, View } from "react-native";
 
 export default function SplashScreen() {
   const router = useRouter();
@@ -33,55 +22,17 @@ export default function SplashScreen() {
   }, [isLoaded, isSignedIn]);
 
   return (
-    <ThemedView style={styles.container} lightColor={COLORS.background}>
+    <View className="flex-1 items-center justify-center bg-violet-50">
       {/* Logo */}
-      <ThemedView style={styles.logoContainer} lightColor={COLORS.white}>
-        <ThemedText style={styles.logoEmoji}>📚</ThemedText>
-      </ThemedView>
+      <View className="w-28 h-28 rounded-3xl items-center justify-center bg-white shadow-xl shadow-violet-500/30 mb-5">
+        <Text className="text-6xl">📚</Text>
+      </View>
 
       {/* Nombre de la app */}
-      <ThemedText style={styles.title} lightColor={COLORS.primary}>
-        LearnHub
-      </ThemedText>
+      <Text className="text-4xl font-bold text-violet-600 mb-10">LearnHub</Text>
 
       {/* Spinner */}
-      <ActivityIndicator
-        size="large"
-        color={COLORS.primary}
-        style={styles.spinner}
-      />
-    </ThemedView>
+      <ActivityIndicator size="large" color="#7C3AED" className="mt-5" />
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logoContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 30,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#7C3AED",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 10,
-    marginBottom: 20,
-  },
-  logoEmoji: {
-    fontSize: 60,
-  },
-  title: {
-    fontSize: 40,
-    fontWeight: "bold",
-    marginBottom: 40,
-  },
-  spinner: {
-    marginTop: 20,
-  },
-});
