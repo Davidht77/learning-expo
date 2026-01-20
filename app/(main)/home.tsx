@@ -1,5 +1,5 @@
+import { getCourses } from "@/api/sanity";
 import SettingsMenuTailwind from "@/components/ui/settings-modal";
-import { getCourses } from "@/lib/sanity";
 import { CourseProps } from "@/types/course";
 import { useUser } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
@@ -8,13 +8,12 @@ import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
-  ImageSourcePropType,
   Pressable,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 function CourseCard({ course, onPress }: { course: CourseProps; onPress: () => void }) {

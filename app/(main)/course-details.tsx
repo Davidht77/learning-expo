@@ -1,6 +1,6 @@
-import { getCourseBySlug, getChaptersByCourseId } from "@/lib/sanity";
-import { CourseProps } from "@/types/course";
+import { getChaptersByCourseId, getCourseBySlug } from "@/api/sanity";
 import { ChapterProps } from "@/types/chapter";
+import { CourseProps } from "@/types/course";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
