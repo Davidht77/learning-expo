@@ -3,6 +3,8 @@ import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
 import React from "react";
 import {
+  ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -19,10 +21,18 @@ export default function LoginScreen() {
 
   const [emailAddress, setEmailAddress] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const onSignInPress = async () => {
+    if (!emailAddress.trim() || !password.trim()) {
+      Alert.alert("Error", "Por favor, completa todos los campos.");
+      return;
+    }
+
     if (!isLoaded) return;
 
+    setIsLoading(true);
     try {
       const signInAttempt = await signIn.create({
         identifier: emailAddress,
@@ -31,12 +41,17 @@ export default function LoginScreen() {
 
       if (signInAttempt.status === "complete") {
         await setActive({ session: signInAttempt.createdSessionId });
-        router.replace("/");
+        router.replace("/(main)/home");
       } else {
+        Alert.alert("Error", "No se pudo completar el inicio de sesión.");
         console.error(JSON.stringify(signInAttempt, null, 2));
       }
-    } catch (err) {
+    } catch (err: any) {
+      const message = err?.errors?.[0]?.message || err?.message || "Error al iniciar sesión";
+      Alert.alert("Error", message);
       console.error(JSON.stringify(err, null, 2));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -55,13 +70,7 @@ export default function LoginScreen() {
     >
       {/* Header */}
       <View className="flex-row items-center justify-center px-4 pt-14 pb-4">
-        <TouchableOpacity
-          className="absolute left-4 top-14"
-          onPress={() => router.back()}
-        >
-          <Ionicons name="close" size={24} color="#000" />
-        </TouchableOpacity>
-        <Text className="text-lg font-semibold">Iniciar sesión</Text>
+        <Text className="text-lg font-semibold text-violet-600">Iniciar sesión</Text>
       </View>
 
       <ScrollView
@@ -73,7 +82,7 @@ export default function LoginScreen() {
         <View className="gap-5 mt-4">
           {/* Email */}
           <View className="gap-2">
-            <Text className="text-sm font-medium text-gray-700">Email</Text>
+            <Text className="text-sm font-medium text-violet-600">Email</Text>
             <TextInput
               className="border border-gray-300 rounded-lg px-4 py-3 text-base"
               autoCapitalize="none"
@@ -87,15 +96,27 @@ export default function LoginScreen() {
 
           {/* Password */}
           <View className="gap-2">
-            <Text className="text-sm font-medium text-gray-700">Contraseña</Text>
-            <TextInput
-              className="border border-gray-300 rounded-lg px-4 py-3 text-base"
-              value={password}
-              placeholder="••••••••"
-              placeholderTextColor="#9CA3AF"
-              secureTextEntry={true}
-              onChangeText={setPassword}
-            />
+            <Text className="text-sm font-medium text-violet-600">Contraseña</Text>
+            <View className="relative">
+              <TextInput
+                className="border border-gray-300 rounded-lg px-4 py-3 text-base pr-12"
+                value={password}
+                placeholder="••••••••"
+                placeholderTextColor="#9CA3AF"
+                secureTextEntry={!showPassword}
+                onChangeText={setPassword}
+              />
+              <TouchableOpacity
+                className="absolute right-4 top-3"
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <Ionicons
+                  name={showPassword ? "eye-off-outline" : "eye-outline"}
+                  size={22}
+                  color="#6B7280"
+                />
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Forgot Password */}
@@ -107,12 +128,17 @@ export default function LoginScreen() {
 
           {/* Login Button */}
           <Pressable
-            className="bg-gray-900 py-4 rounded-lg items-center active:opacity-90"
+            className={`bg-violet-600 py-4 rounded-lg items-center active:opacity-90 ${isLoading ? "opacity-70" : ""}`}
             onPress={onSignInPress}
+            disabled={isLoading}
           >
-            <Text className="text-white text-base font-semibold">
-              Iniciar sesión
-            </Text>
+            {isLoading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text className="text-white text-base font-semibold">
+                Iniciar sesión
+              </Text>
+            )}
           </Pressable>
 
           {/* Divider */}
@@ -125,21 +151,21 @@ export default function LoginScreen() {
           {/* Social Buttons */}
           <View className="gap-3">
             <Pressable
-              className="flex-row items-center justify-center gap-3 py-3 rounded-lg border border-gray-300 active:bg-gray-50"
+              className="flex-row items-center justify-center gap-3 py-3 rounded-lg border border-gray-300 bg-black active:opacity-80"
               onPress={onApplePress}
             >
-              <Ionicons name="logo-apple" size={20} color="#000" />
-              <Text className="text-base font-medium">
+              <Ionicons name="logo-apple" size={20} color="#fff" />
+              <Text className="text-base font-medium text-white">
                 Continuar con Apple
               </Text>
             </Pressable>
 
             <Pressable
-              className="flex-row items-center justify-center gap-3 py-3 rounded-lg border border-gray-300 active:bg-gray-50"
+              className="flex-row items-center justify-center gap-3 py-3 rounded-lg border border-gray-300 bg-red-600 active:bg-red-50"
               onPress={onGooglePress}
             >
-              <AntDesign name="google" size={18} color="#4285F4" />
-              <Text className="text-base font-medium">
+              <AntDesign name="google" size={18} color="white"/>
+              <Text className="text-base font-medium text-white">
                 Continuar con Google
               </Text>
             </Pressable>

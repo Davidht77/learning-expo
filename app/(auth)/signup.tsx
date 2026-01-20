@@ -3,6 +3,8 @@ import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
 import * as React from "react";
 import {
+  ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -17,24 +19,41 @@ export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp();
   const router = useRouter();
 
+  const [firstName, setFirstName] = React.useState("");
+  const [lastName, setLastName] = React.useState("");
   const [emailAddress, setEmailAddress] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState(false);
   const [pendingVerification, setPendingVerification] = React.useState(false);
   const [code, setCode] = React.useState("");
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const onSignUpPress = async () => {
+
+    if (!firstName.trim() || !lastName.trim() || !emailAddress.trim() || !password.trim()) {
+      Alert.alert("Error", "Por favor, completa todos los campos.");
+      return;
+    }
+
     if (!isLoaded) return;
 
+    setIsLoading(true);
     try {
       await signUp.create({
+        firstName,
+        lastName,
         emailAddress,
         password,
       });
 
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
       setPendingVerification(true);
-    } catch (err) {
+    } catch (err: any) {
+      const message = err?.errors?.[0]?.message || err?.message || "Error al registrarse";
+      Alert.alert("Error", message);
       console.error(JSON.stringify(err, null, 2));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -48,11 +67,14 @@ export default function SignUpScreen() {
 
       if (signUpAttempt.status === "complete") {
         await setActive({ session: signUpAttempt.createdSessionId });
-        router.replace("/");
+        router.replace("/(main)/home");
       } else {
+        Alert.alert("Error", "La verificación del código falló. Por favor, inténtalo de nuevo.");
         console.error(JSON.stringify(signUpAttempt, null, 2));
       }
-    } catch (err) {
+    } catch (err: any) {
+      const message = err?.errors?.[0]?.message || err?.message || "Error al verificar el código";
+      Alert.alert("Error", message);
       console.error(JSON.stringify(err, null, 2));
     }
   };
@@ -76,7 +98,7 @@ export default function SignUpScreen() {
           >
             <Ionicons name="arrow-back" size={24} color="#000" />
           </TouchableOpacity>
-          <Text className="text-lg font-semibold">Verificar email</Text>
+          <Text className="text-lg font-semibold text-violet-600">Verificar email</Text>
         </View>
 
         <View className="flex-1 px-6 pt-8">
@@ -96,7 +118,7 @@ export default function SignUpScreen() {
           />
 
           <Pressable
-            className="bg-gray-900 py-4 rounded-lg items-center mt-6 active:opacity-90"
+            className="bg-violet-600 py-4 rounded-lg items-center mt-6 active:opacity-90"
             onPress={onVerifyPress}
           >
             <Text className="text-white text-base font-semibold">Verificar</Text>
@@ -123,9 +145,9 @@ export default function SignUpScreen() {
           className="absolute left-4 top-14"
           onPress={() => router.back()}
         >
-          <Ionicons name="close" size={24} color="#000" />
+          <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
-        <Text className="text-lg font-semibold">Crear cuenta</Text>
+        <Text className="text-lg font-semibold text-violet-600">Crear cuenta</Text>
       </View>
 
       <ScrollView
@@ -135,9 +157,33 @@ export default function SignUpScreen() {
       >
         {/* Formulario */}
         <View className="gap-5 mt-4">
+          {/* Nombre y Apellido */}
+          <View className="flex-row gap-3">
+            <View className="flex-1 gap-2">
+              <Text className="text-sm font-medium text-violet-600">Nombre</Text>
+              <TextInput
+                className="border border-gray-300 rounded-lg px-4 py-3 text-base"
+                value={firstName}
+                placeholder="Juan"
+                placeholderTextColor="#9CA3AF"
+                onChangeText={setFirstName}
+              />
+            </View>
+            <View className="flex-1 gap-2">
+              <Text className="text-sm font-medium text-violet-600">Apellido</Text>
+              <TextInput
+                className="border border-gray-300 rounded-lg px-4 py-3 text-base"
+                value={lastName}
+                placeholder="Pérez"
+                placeholderTextColor="#9CA3AF"
+                onChangeText={setLastName}
+              />
+            </View>
+          </View>
+
           {/* Email */}
           <View className="gap-2">
-            <Text className="text-sm font-medium text-gray-700">Email</Text>
+            <Text className="text-sm font-medium text-violet-600">Email</Text>
             <TextInput
               className="border border-gray-300 rounded-lg px-4 py-3 text-base"
               autoCapitalize="none"
@@ -151,25 +197,42 @@ export default function SignUpScreen() {
 
           {/* Password */}
           <View className="gap-2">
-            <Text className="text-sm font-medium text-gray-700">Contraseña</Text>
-            <TextInput
-              className="border border-gray-300 rounded-lg px-4 py-3 text-base"
-              value={password}
-              placeholder="Mínimo 8 caracteres"
-              placeholderTextColor="#9CA3AF"
-              secureTextEntry={true}
-              onChangeText={setPassword}
-            />
+            <Text className="text-sm font-medium text-violet-600">Contraseña</Text>
+            <View className="relative">
+              <TextInput
+                className="border border-gray-300 rounded-lg px-4 py-3 text-base pr-12"
+                value={password}
+                placeholder="Mínimo 8 caracteres"
+                placeholderTextColor="#9CA3AF"
+                secureTextEntry={!showPassword}
+                onChangeText={setPassword}
+              />
+              <TouchableOpacity
+                className="absolute right-4 top-3"
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <Ionicons
+                  name={showPassword ? "eye-off-outline" : "eye-outline"}
+                  size={22}
+                  color="#6B7280"
+                />
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Register Button */}
           <Pressable
-            className="bg-gray-900 py-4 rounded-lg items-center active:opacity-90"
+            className={`bg-violet-600 py-4 rounded-lg items-center active:opacity-90 ${isLoading ? "opacity-70" : ""}`}
             onPress={onSignUpPress}
+            disabled={isLoading}
           >
-            <Text className="text-white text-base font-semibold">
-              Crear cuenta
-            </Text>
+            {isLoading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text className="text-white text-base font-semibold">
+                Crear cuenta
+              </Text>
+            )}
           </Pressable>
 
           {/* Divider */}
@@ -182,21 +245,21 @@ export default function SignUpScreen() {
           {/* Social Buttons */}
           <View className="gap-3">
             <Pressable
-              className="flex-row items-center justify-center gap-3 py-3 rounded-lg border border-gray-300 active:bg-gray-50"
+              className="flex-row items-center justify-center gap-3 py-3 rounded-lg border border-gray-300 bg-black active:opacity-80"
               onPress={onApplePress}
             >
-              <Ionicons name="logo-apple" size={20} color="#000" />
-              <Text className="text-base font-medium">
+              <Ionicons name="logo-apple" size={20} color="#fff" />
+              <Text className="text-base font-medium text-white">
                 Continuar con Apple
               </Text>
             </Pressable>
 
             <Pressable
-              className="flex-row items-center justify-center gap-3 py-3 rounded-lg border border-gray-300 active:bg-gray-50"
+              className="flex-row items-center justify-center gap-3 py-3 rounded-lg border border-gray-300 bg-red-600 active:bg-red-50"
               onPress={onGooglePress}
             >
-              <AntDesign name="google" size={18} color="#4285F4" />
-              <Text className="text-base font-medium">
+              <AntDesign name="google" size={18} color="white" />
+              <Text className="text-base font-medium text-white">
                 Continuar con Google
               </Text>
             </Pressable>

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
+This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility. Run the commands on Git Bash Console.
 
 ## Documentation Resources
 
