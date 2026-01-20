@@ -1,3 +1,4 @@
+import GoogleSignInButton from "@/components/ui/sign-in-google";
 import { useSignIn } from "@clerk/clerk-expo";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
@@ -159,6 +160,8 @@ export default function LoginScreen() {
                 Continuar con Apple
               </Text>
             </Pressable>
+            
+            <GoogleSignInButton />
 
             <Pressable
               className="flex-row items-center justify-center gap-3 py-3 rounded-lg border border-gray-300 bg-red-600 active:bg-red-50"
