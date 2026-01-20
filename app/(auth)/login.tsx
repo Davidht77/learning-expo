@@ -160,18 +160,8 @@ export default function LoginScreen() {
                 Continuar con Apple
               </Text>
             </Pressable>
-            
-            <GoogleSignInButton />
 
-            <Pressable
-              className="flex-row items-center justify-center gap-3 py-3 rounded-lg border border-gray-300 bg-red-600 active:bg-red-50"
-              onPress={onGooglePress}
-            >
-              <AntDesign name="google" size={18} color="white"/>
-              <Text className="text-base font-medium text-white">
-                Continuar con Google
-              </Text>
-            </Pressable>
+            <GoogleSignInButton />
           </View>
         </View>
 

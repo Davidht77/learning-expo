@@ -1,10 +1,11 @@
 import { useSSO } from '@clerk/clerk-expo'
+import { ActivityIndicator } from 'react-native'
+import { AntDesign } from '@expo/vector-icons'
 import * as AuthSession from 'expo-auth-session'
 import { useRouter } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
-import React, { useCallback, useEffect } from 'react'
-import { Platform, View } from 'react-native'
-import { Button, ButtonText } from './button'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Platform, Pressable, Text, View } from 'react-native'
 
 // Preloads the browser for Android devices to reduce authentication load time
 // See: https://docs.expo.dev/guides/authentication/#improving-user-experience
@@ -25,12 +26,14 @@ WebBrowser.maybeCompleteAuthSession()
 
 export default function GoogleSignInButton() {
     const router = useRouter()
+    const [isLoading, setIsLoading] = useState(false)
   useWarmUpBrowser()
 
-  // Use the `useSSO()` hook to access the `startSSOFlow()` method
+  // Use of `useSSO()` hook to access to `startSSOFlow()` method
   const { startSSOFlow } = useSSO()
 
   const onPress = useCallback(async () => {
+    setIsLoading(true)
     try {
       // Start the authentication process by calling `startSSOFlow()`
       const { createdSessionId, setActive, signIn, signUp } = await startSSOFlow({
@@ -66,14 +69,29 @@ export default function GoogleSignInButton() {
       // See https://clerk.com/docs/guides/development/custom-flows/error-handling
       // for more info on error handling
       console.error(JSON.stringify(err, null, 2))
+    } finally {
+      setIsLoading(false)
     }
   }, [])
 
   return (
     <View>
-      <Button onPress={onPress}>
-        <ButtonText>Sign in with Google</ButtonText>
-      </Button>
+      <Pressable
+        className={`flex-row items-center justify-center gap-3 py-3 rounded-lg border border-gray-300 bg-red-600 active:bg-red-50 ${isLoading ? 'opacity-70' : ''}`}
+        onPress={onPress}
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <>
+            <AntDesign name="google" size={18} color="white" />
+            <Text className="text-base font-medium text-white">
+              Continuar con Google
+            </Text>
+          </>
+        )}
+      </Pressable>
     </View>
   )
 }

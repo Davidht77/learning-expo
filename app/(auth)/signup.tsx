@@ -1,5 +1,6 @@
+import GoogleSignInButton from "@/components/ui/sign-in-google";
 import { useSignUp } from "@clerk/clerk-expo";
-import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
 import * as React from "react";
 import {
@@ -254,15 +255,7 @@ export default function SignUpScreen() {
               </Text>
             </Pressable>
 
-            <Pressable
-              className="flex-row items-center justify-center gap-3 py-3 rounded-lg border border-gray-300 bg-red-600 active:bg-red-50"
-              onPress={onGooglePress}
-            >
-              <AntDesign name="google" size={18} color="white" />
-              <Text className="text-base font-medium text-white">
-                Continuar con Google
-              </Text>
-            </Pressable>
+            <GoogleSignInButton />
           </View>
         </View>
 
